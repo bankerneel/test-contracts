@@ -8,6 +8,8 @@
 #include "exchange_state.cpp"
 #include "rex.cpp"
 
+#include "user_pay"
+
 namespace eosiosystem {
 
    system_contract::system_contract( name s, name code, datastream<const char*> ds )
