@@ -137,22 +137,22 @@ _gstate.perblock_bucket += to_per_block_pay;
 _gstate.last_pervote_bucket_fill = ct;
 }
 
-auto prod2 = _producers2.find( owner.value );
+//auto prod2 = _producers2.find( owner.value );
 
 /// New metric to be used in pervote pay calculation. Instead of vote weight ratio, we combine vote weight and
 /// time duration the vote weight has been held into one metric.
-const auto last_claim_plus_3days = prod.last_claim_time + microseconds(3 * useconds_per_day);
+//const auto last_claim_plus_3days = prod.last_claim_time + microseconds(3 * useconds_per_day);
 
-bool crossed_threshold = (last_claim_plus_3days <= ct);
-bool updated_after_threshold = true;
-if ( prod2 != _producers2.end() ) {
-updated_after_threshold = (last_claim_plus_3days <= prod2->last_votepay_share_update);
-} else {
-prod2 = _producers2.emplace( owner, [&]( producer_info2& info ) {
-info.owner = owner;
-info.last_votepay_share_update = ct;
-});
-}
+//bool crossed_threshold = (last_claim_plus_3days <= ct);
+//bool updated_after_threshold = true;
+//if ( prod2 != _producers2.end() ) {
+//updated_after_threshold = (last_claim_plus_3days <= prod2->last_votepay_share_update);
+//} else {
+//prod2 = _producers2.emplace( owner, [&]( producer_info2& info ) {
+//info.owner = owner;
+//info.last_votepay_share_update = ct;
+//});
+//}
 
 // Note: updated_after_threshold implies cross_threshold (except if claiming rewards when the producers2 table row did not exist).
 // The exception leads to updated_after_threshold to be treated as true regardless of whether the threshold was crossed.
