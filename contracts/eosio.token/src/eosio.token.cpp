@@ -1,8 +1,3 @@
-/**
- *  @file
- *  @copyright defined in eos/LICENSE.txt
- */
-
 #include <eosio.token/eosio.token.hpp>
 
 namespace eosio {
@@ -43,9 +38,13 @@ void token::issue( name to, asset quantity, string memo )
     require_auth( st.issuer );
     check( quantity.is_valid(), "invalid quantity" );
     check( quantity.amount > 0, "must issue positive quantity" );
-
+    print("---------------",quantity.symbol);
+    print("----------------", st.max_supply.amount);
+    print("---------------", st.supply.amount);
     check( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
-    check( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
+    check( quantity.amount <= st.max_supply.amount, "quantity exceeds available supply");
+
+    //check( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
 
     statstable.modify( st, same_payer, [&]( auto& s ) {
        s.supply += quantity;
@@ -100,7 +99,7 @@ void token::transfer( name    from,
     require_recipient( to );
 
     check( quantity.is_valid(), "invalid quantity" );
-    check( quantity.amount < 0, "must transfer positive quantity" );
+    check( quantity.amount > 0, "must transfer positive quantity" );
     check( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
     check( memo.size() <= 256, "memo has more than 256 bytes" );
 
@@ -140,8 +139,9 @@ void token::open( name owner, const symbol& symbol, name ram_payer )
 {
    require_auth( ram_payer );
 
-   auto sym_code_raw = symbol.code().raw();
+   check( is_account( owner ), "owner account does not exist" );
 
+   auto sym_code_raw = symbol.code().raw();
    stats statstable( _self, sym_code_raw );
    const auto& st = statstable.get( sym_code_raw, "symbol does not exist" );
    check( st.supply.symbol == symbol, "symbol precision mismatch" );
