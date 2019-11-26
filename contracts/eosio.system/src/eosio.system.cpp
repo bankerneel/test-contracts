@@ -8,7 +8,7 @@
 #include "exchange_state.cpp"
 #include "rex.cpp"
 
-#include "user_pay"
+#include "user_pay.cpp"
 
 namespace eosiosystem {
 
