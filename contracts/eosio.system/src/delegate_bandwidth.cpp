@@ -26,7 +26,7 @@ namespace eosiosystem {
    using std::map;
    using std::pair;
 
-   static constexpr uint32_t refund_delay_sec = 3*24*3600;
+   static constexpr uint32_t refund_delay_sec =1*24*3600;
    static constexpr int64_t  ram_gift_bytes = 1400;
 
    struct [[eosio::table, eosio::contract("eosio.system")]] user_resources {
@@ -241,11 +241,12 @@ namespace eosiosystem {
                                    const asset stake_net_delta, const asset stake_cpu_delta, bool transfer )
    {
       require_auth( from );
+      print("-------------------------------------------------------------");
       check( stake_net_delta.amount != 0 || stake_cpu_delta.amount != 0, "should stake non-zero amount" );
       check( std::abs( (stake_net_delta + stake_cpu_delta).amount )
              >= std::max( std::abs( stake_net_delta.amount ), std::abs( stake_cpu_delta.amount ) ),
              "net and cpu deltas cannot be opposite signs" );
-
+	
       name source_stake_from = from;
       if ( transfer ) {
          from = receiver;
@@ -477,6 +478,8 @@ namespace eosiosystem {
       check( req != refunds_tbl.end(), "refund request not found" );
       check( req->request_time + seconds(refund_delay_sec) <= current_time_point(),
              "refund is not available yet" );
+
+	print(".......................................................");
 
       INLINE_ACTION_SENDER(eosio::token, transfer)(
          token_account, { {stake_account, active_permission}, {req->owner, active_permission} },

@@ -38,17 +38,18 @@ void token::issue( name to, asset quantity, string memo )
     require_auth( st.issuer );
     check( quantity.is_valid(), "invalid quantity" );
     check( quantity.amount > 0, "must issue positive quantity" );
-    print("---------------",quantity.symbol);
-    print("----------------", st.max_supply.amount);
-    print("---------------", st.supply.amount);
+    print("quantity.symbol---------------",quantity.symbol);
+    print("st.max_supply.amount----------------", st.max_supply.amount);
+    print("st.supply.amount---------------", st.supply.amount);
     check( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
     check( quantity.amount <= st.max_supply.amount, "quantity exceeds available supply");
-
-    //check( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
-
+    check( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
+    print("quantity.amount------------", quantity.amount);
     statstable.modify( st, same_payer, [&]( auto& s ) {
        s.supply += quantity;
+    print("s.supply-------", s.supply);
     });
+    
 
     add_balance( st.issuer, quantity, st.issuer );
 

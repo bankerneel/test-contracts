@@ -94,7 +94,7 @@ check( prod.active(), "producer does not have an active key" );
 check( _gstate.total_activated_stake >= min_activated_stake,"cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
 
 const auto ct = current_time_point();
-auto vote_restriction = _gstate.total_producer_vote_weight / 200;
+const double   vote_restriction = _gstate.total_producer_vote_weight / 200;
 print("........................................................................");
 print("vote restrictions are  =  ", vote_restriction);
 print("........................................................................");
@@ -137,13 +137,7 @@ print("useconds per year-------------", useconds_per_year);
 print("-----------------*****----------------------");
 //.................................................................
 //.................................................................
-//auto counter = _producers.count(prod.total_votes >= vote_restriction);
-auto counter = 0;
-if(prod.total_votes >= vote_restriction){
-counter ++;
-print("producer counter", counter);
-}
-//print("total number of the producers that has passed the vote restriction", counter);
+
 // Aladin 5% inflation and distribution 
 auto to_network           = new_tokens * network_percent;
 auto to_producers = to_network * network_to_producer;
@@ -181,12 +175,19 @@ token_account, { {_self, active_permission} },
 { _self, bpay_account, asset(to_per_block_pay, core_symbol()), "fund per-block bucket" }
 );
 
-if( prod.total_votes >=  vote_restriction){
 INLINE_ACTION_SENDER(eosio::token, transfer)(
 token_account, { {_self, active_permission} },
 { _self, vpay_account, asset(to_per_vote_pay, core_symbol()), "fund per-vote bucket" }
 );
-}
+
+if( prod.total_votes >=  vote_restriction){
+if( prod.total_votes >=  vote_restriction){
+
+
+
+
+Type a message
+
 //_gstate.perblock_bucket = 0;
 _gstate.pervote_bucket += to_per_vote_pay;
 _gstate.perblock_bucket += to_per_block_pay;
@@ -284,7 +285,6 @@ token_account, { {vpay_account, active_permission}, {owner, active_permission} }
 );
 }
 }
-
 
 } //namespace eosiosystem
 

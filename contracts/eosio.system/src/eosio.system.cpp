@@ -8,7 +8,7 @@
 #include "exchange_state.cpp"
 #include "rex.cpp"
 
-#include "user_pay.cpp"
+
 
 namespace eosiosystem {
 
@@ -476,7 +476,5 @@ EOSIO_DISPATCH( eosiosystem::system_contract,
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
-     // user_pay.cpp
-     (onblock)(voterclaimrewards)
-
+     
 )
