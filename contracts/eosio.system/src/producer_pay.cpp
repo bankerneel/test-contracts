@@ -1,3 +1,4 @@
+
 #include <eosio.system/eosio.system.hpp>
 #include <eosio.token/eosio.token.hpp>
 
@@ -5,7 +6,7 @@ namespace eosiosystem {
 
 // need to exclude const int64_t min_pervote_daily_pay = 100'0000;
 
-const int64_t min_pervote_daily_pay = 100'0000;
+//const int64_t min_pervote_daily_pay = 100'0000;
 const int64_t min_activated_stake = 150'000'000'0000;
 const double continuous_rate = 0.04879; // 5% annual rate
 //const double perblock_rate = 0.0025; // 0.25%
@@ -24,7 +25,6 @@ const uint32_t blocks_per_day = 2 * 24 * 3600;
 const uint32_t blocks_per_hour = 2 * 3600;
 const int64_t useconds_per_day = 24 * 3600 * int64_t(1000000);
 const int64_t useconds_per_year = seconds_per_year*1000000ll;
-
 void system_contract::onblock( ignore<block_header> ) {
 using namespace eosio;
 
@@ -88,23 +88,65 @@ require_auth( owner );
 
 print("authorized owner");
 print(owner);
+//time_t current = time(0);
+
+//print("current time epoch is = ", current);
+print("        .............................................................. ");
+auto vote_restriction = _gstate.total_producer_vote_weight / 200;
+//_gstate.last_producer_schedule_update = block_time;
+// code to get the counter for number of the producer that have .5% votes of the total votes for all 50 producer
+      auto idx = _producers.get_index<"prototalvote"_n>();
+//auto counter = _gstate.counter;
+      std::vector< std::pair<eosio::producer_key,uint16_t> > top_fifty_witnesses_producers;
+      top_fifty_witnesses_producers.reserve(50);       
+if(_gstate.counter == 0){
+//for ( auto it = idx.cbegin(); it != idx.cend() && top_fifty_witnesses_producers.size() < 2 && vote_restriction <= it->total_votes && it->active(); ++it ) {
+//         _gstate.counter ++;
+//counter++;
+//	}
+//}
+
+for ( auto it = idx.cbegin(); it != idx.cend() && top_fifty_witnesses_producers.size() < 50 && vote_restriction <= it->total_votes && it->active(); ++it ) {
+     if(vote_restriction <= it->total_votes){
+        top_fifty_witnesses_producers.emplace_back( std::pair<eosio::producer_key,uint16_t>({{it->owner, it->producer_key}, it->location}) );	
+}
+//counter++;
+      }
+
+
+auto witness_size = top_fifty_witnesses_producers.size();
+
+_gstate.counter = witness_size;
+
+print("    ...........................................     ");
+print("total witnesses we got = ",  witness_size);
+
+
+
+}
+
 const auto& prod = _producers.get( owner.value );
+//auto vitr = _producers.find( owner.value );
+
 check( prod.active(), "producer does not have an active key" );
+
+print("     .....................................................................    ");
+print("number of the producer that has passed the vote restriction    ", _gstate.counter);
 
 check( _gstate.total_activated_stake >= min_activated_stake,"cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
 
 const auto ct = current_time_point();
-auto vote_restriction = _gstate.total_producer_vote_weight / 200;
-print("........................................................................");
-print("vote restrictions are  =  ", vote_restriction);
-print("........................................................................");
+//auto vote_restriction = _gstate.total_producer_vote_weight / 200;
+print("    ........................................................................      ");
+print("     vote restrictions are  =    ", vote_restriction);
+print("    ........................................................................      ");
 
-print("........................................................................");
-print(" owner producers votes", prod.total_votes);
+print("    ........................................................................      ");
+print("     owner producers votes =     ", prod.total_votes);
 
-print("........................................................................");
-print("........................................................................");
-print("all producers votes", _gstate.total_producer_vote_weight);
+print("    ........................................................................      ");
+print("    ........................................................................      ");
+print("    all producers votes    =     ", _gstate.total_producer_vote_weight             );
 
 
 // to claim rewards anytime 
@@ -138,11 +180,11 @@ print("-----------------*****----------------------");
 //.................................................................
 //.................................................................
 //auto counter = _producers.count(prod.total_votes >= vote_restriction);
-auto counter = 0;
-if(prod.total_votes >= vote_restriction){
-counter ++;
-print("producer counter", counter);
-}
+//auto counter = 0;
+//if(prod.total_votes >= vote_restriction){
+//counter ++;
+//print("producer counter", counter);
+//}
 //print("total number of the producers that has passed the vote restriction", counter);
 // Aladin 5% inflation and distribution 
 auto to_network           = new_tokens * network_percent;
@@ -160,7 +202,6 @@ print("----------------------------*******-----------------");
 print("to_producers = ", to_producers);
 print("----------------------------*******-----------------");
 print("to_networks = ", to_network);
-
 print("--------------------------*****---------------------");
 print("new_tokens = ", new_tokens);
 print("--------------------------*****---------------------");
@@ -187,10 +228,12 @@ token_account, { {_self, active_permission} },
 { _self, vpay_account, asset(to_per_vote_pay, core_symbol()), "fund per-vote bucket" }
 );
 }
-//_gstate.perblock_bucket = 0;
+_gstate.perblock_bucket = 0;
+_gstate.pervote_bucket  = 0;
 _gstate.pervote_bucket += to_per_vote_pay;
 _gstate.perblock_bucket += to_per_block_pay;
 _gstate.last_pervote_bucket_fill = ct;
+//auto ccounter = _gstate.counter ;
 }
 
 auto prod2 = _producers2.find( owner.value );
@@ -245,24 +288,59 @@ if( producer_per_vote_pay > _gstate.pervote_bucket )
 producer_per_vote_pay = _gstate.pervote_bucket;
 }
 } else {
-if( _gstate.total_producer_vote_weight > 0 && prod.total_votes >= vote_restriction ) {
-producer_per_vote_pay = int64_t((_gstate.pervote_bucket * prod.total_votes) / _gstate.total_producer_vote_weight);
-print("----------------------------*******-----------------");
-print("producer per vote pay = ",producer_per_vote_pay);
-print("----------------------****-------------------");
-print("per vote bucket" , _gstate.pervote_bucket);
-print("-------------------****-------------------");
+//if( _gstate.total_producer_vote_weight > 0 && prod.total_votes >= vote_restriction && 50 >= vitr->producers.size() ) {
+
+
+//auto itr = top_fifty_witnesses_producers.find(owner.value);
+ 
+
+//bool witness_found = false;
+// Iterate over all elements in Vector
+
+
+/*
+for (auto & present : top_fifty_witnesses_producers)
+{
+        if (present == owner.value)
+        {
+                witness_found = true;
+                break;
+        }
+}
+*/
+//auto witr = _producers.find( owner.value );
+//if( witr->top_fifty_witnesses_producers.size()){
+//if(witness_found){
+if( _gstate.total_producer_vote_weight > 0 && prod.total_votes >= vote_restriction && _gstate.counter >0) {
+//check(top_fifty_witnesses_producers.find(owner.value), "witness reward conditions are not setisfied that is why no witness rewards ");
+producer_per_vote_pay = int64_t(_gstate.pervote_bucket / _gstate.counter);
+_gstate.counter--;
+//counter--;
+print("----------------------------*******----------------------------");
+print("producer per vote pay =                  ",producer_per_vote_pay);
+print("----------------------****-------------------------------------");
+print("per vote bucket =                     " , _gstate.pervote_bucket);
+print("-------------------****----------------------------------------");
 print("total producer vote weight" , _gstate.total_producer_vote_weight);
+print("-------------------****----------------------------------------");
+print("counter value aftetr reward taken =           " ,_gstate.counter);
 }
 }
 
-if( producer_per_vote_pay < min_pervote_daily_pay ) {
-producer_per_vote_pay = 0;
-}
+//if( producer_per_vote_pay < min_pervote_daily_pay ) {
+//producer_per_vote_pay = 0;
+//}
 
 _gstate.pervote_bucket -= producer_per_vote_pay;
 _gstate.perblock_bucket -= producer_per_block_pay;
 _gstate.total_unpaid_blocks -= prod.unpaid_blocks;
+//_gstate.counter = ccounter;
+
+print("..................................................................................");
+print("value of block bucket after the value transfered to the repective producer", _gstate.perblock_bucket);
+print("..................................................................................");
+print("value of the vote bucket after the value tranfered to the respective producer for votes caluculation = " ,_gstate.pervote_bucket );
+
 
 update_total_votepay_share( ct, -new_votepay_share, (updated_after_threshold ? prod.total_votes : 0.0) );
 
@@ -284,7 +362,5 @@ token_account, { {vpay_account, active_permission}, {owner, active_permission} }
 );
 }
 }
-
-
 } //namespace eosiosystem
 
