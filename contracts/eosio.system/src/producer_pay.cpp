@@ -14,13 +14,15 @@ double     continuous_rate                = 0.04879; // 5% annual rate
 //const double standby_rate = 0.0075; // 0.75%
 const double     perblock_rate                  = 0.015; // 1.5%
 
-
+// ....................dummy rates.....................................................................................
 const int64_t    network_start_time             = 1575884246;
-
+const int64_t    one_year_to_network_start      = 1575885700;
+const int64_t    two_year_to_network_start      = 1575885750;
+const int64_t    three_year_to_network_start    = 1575885800;
 //const int64_t    network_start_time             = 1575892800;
-const int64_t    one_year_to_network_start      = 1639051200;
-const int64_t    two_year_to_network_start      = 1670587200;
-const int64_t    three_year_to_network_start    = 1702123200;
+//const int64_t    one_year_to_network_start      = 1639051200;
+//const int64_t    two_year_to_network_start      = 1670587200;
+//const int64_t    three_year_to_network_start    = 1702123200;
 //const double top_to_producers_percent = 0.3;
 //const double witness_reward_percent = 0.075;
 // const double standby_rate = 0.00375; // 0.375%
