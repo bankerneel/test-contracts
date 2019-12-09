@@ -1,4 +1,5 @@
-
+#include <chrono>
+#include <ctime>
 #include <eosio.system/eosio.system.hpp>
 #include <eosio.token/eosio.token.hpp>
 
@@ -7,29 +8,37 @@ namespace eosiosystem {
 // need to exclude const int64_t min_pervote_daily_pay = 100'0000;
 
 //const int64_t min_pervote_daily_pay = 100'0000;
-const int64_t min_activated_stake = 150'000'000'0000;
-const double continuous_rate = 0.04879; // 5% annual rate
+const int64_t    min_activated_stake            = 150'000'000'0000;
+double     continuous_rate                = 0.04879; // 5% annual rate
 //const double perblock_rate = 0.0025; // 0.25%
 //const double standby_rate = 0.0075; // 0.75%
-const double perblock_rate = 0.015; // 1.5%
+const double     perblock_rate                  = 0.015; // 1.5%
+
+
+const int64_t    network_start_time             = 1575884246;
+
+//const int64_t    network_start_time             = 1575892800;
+const int64_t    one_year_to_network_start      = 1639051200;
+const int64_t    two_year_to_network_start      = 1670587200;
+const int64_t    three_year_to_network_start    = 1702123200;
 //const double top_to_producers_percent = 0.3;
 //const double witness_reward_percent = 0.075;
-
 // const double standby_rate = 0.00375; // 0.375%
-const double network_percent = 0.5; // 50% to network 
-const double network_to_producer = 0.6; // 60% of network to witnessess
-const double network_to_witness = 0.15; // 15% to witnessess
-const uint32_t blocks_per_year = 52*7*24*2*3600; // half seconds per year
-const uint32_t seconds_per_year = 52*7*24*3600;
-const uint32_t blocks_per_day = 2 * 24 * 3600;
-const uint32_t blocks_per_hour = 2 * 3600;
-const int64_t useconds_per_day = 24 * 3600 * int64_t(1000000);
-const int64_t useconds_per_year = seconds_per_year*1000000ll;
+const double     network_percent                = 0.5; // 50% to network 
+const double     network_to_producer            = 0.6; // 60% of network to witnessess
+const double     network_to_witness             = 0.15; // 15% to witnessess
+const uint32_t   blocks_per_year                = 52*7*24*2*3600; // half seconds per year
+const uint32_t   seconds_per_year               = 52*7*24*3600;
+const uint32_t   blocks_per_day                 = 2 * 24 * 3600;
+const uint32_t   blocks_per_hour                = 2 * 3600;
+const int64_t    useconds_per_day               = 24 * 3600 * int64_t(1000000);
+const int64_t    useconds_per_year              = seconds_per_year*1000000ll;
+
+
+
 void system_contract::onblock( ignore<block_header> ) {
 using namespace eosio;
-
 require_auth(_self);
-
 block_timestamp timestamp;
 name producer;
 _ds >> timestamp >> producer;
@@ -85,14 +94,16 @@ b.high_bid = -b.high_bid;
 using namespace eosio;
 void system_contract::claimrewards( const name owner ) {
 require_auth( owner );
-
 print("authorized owner");
 print(owner);
 //time_t current = time(0);
-
 //print("current time epoch is = ", current);
 print("        .............................................................. ");
 auto vote_restriction = _gstate.total_producer_vote_weight / 200;
+//print("time comes from here for inflation ::::::::::::::::::::::::::::::::::::");
+//std::chrono::time_point<std::chrono::system_clock> start;
+//start = std::chrono::system_clock::now();
+//print("thw current time is ========", start);
 //_gstate.last_producer_schedule_update = block_time;
 // code to get the counter for number of the producer that have .5% votes of the total votes for all 50 producer
       auto idx = _producers.get_index<"prototalvote"_n>();
@@ -127,28 +138,20 @@ print("total witnesses we got = ",  witness_size);
 
 const auto& prod = _producers.get( owner.value );
 //auto vitr = _producers.find( owner.value );
-
 check( prod.active(), "producer does not have an active key" );
-
 print("     .....................................................................    ");
 print("number of the producer that has passed the vote restriction    ", _gstate.counter);
-
 check( _gstate.total_activated_stake >= min_activated_stake,"cannot claim rewards until the chain is activated (at least 15% of all tokens participate in voting)" );
-
 const auto ct = current_time_point();
 //auto vote_restriction = _gstate.total_producer_vote_weight / 200;
 print("    ........................................................................      ");
 print("     vote restrictions are  =    ", vote_restriction);
-print("    ........................................................................      ");
-
+//print("current time is = ", prod.last_claim_time);
 print("    ........................................................................      ");
 print("     owner producers votes =     ", prod.total_votes);
-
 print("    ........................................................................      ");
 print("    ........................................................................      ");
 print("    all producers votes    =     ", _gstate.total_producer_vote_weight             );
-
-
 // to claim rewards anytime 
 // comment this for the testing purpose ----check( ct - prod.last_claim_time > microseconds(useconds_per_day), "already claimed rewards within past day" );
 //check( ct - prod.last_claim_time > microseconds(useconds_per_day), "already claimed rewards within past day" );
@@ -157,9 +160,46 @@ const asset token_supply = eosio::token::get_supply(token_account, core_symbol()
 
 // vote count over time
 const auto usecs_since_last_fill = (ct - _gstate.last_pervote_bucket_fill).count();
-
 if( usecs_since_last_fill > 0 && _gstate.last_pervote_bucket_fill > time_point() ) {
-//auto new_tokens = 40000000;
+//auto new_tokens = 40000000;  
+
+//............................................inflation code here ...............................................//
+//...............................................................................................................//
+
+
+if(now() >= network_start_time && now() < one_year_to_network_start){
+//const int64_t claimable_continuous_rate = int64_t(double(now()-base_inflated) / (10*seconds_per_year) );
+continuous_rate = 0.04879;
+print("inflation continuous rate is =============================================================================");
+print("inflation continuous rate is =============================================================================");
+print("inflation continuous rate is =====  ", continuous_rate);
+}
+
+if(now() >= one_year_to_network_start && now() < two_year_to_network_start ){
+//const int64_t claimable_continuous_rate = int64_t(double(now()-base_inflated) / (10*seconds_per_year) );
+continuous_rate  =  0.03922;
+print("inflation continuous rate is =====  ", continuous_rate);
+}
+
+if(now() >= two_year_to_network_start  && now() < three_year_to_network_start){
+//const int64_t claimable_continuous_rate = int64_t(double(now()-base_inflated) / (10*seconds_per_year) );
+continuous_rate  =  0.02955;
+print("inflation continuous rate is =====  ", continuous_rate);
+}
+
+if(now() >= three_year_to_network_start){
+//const int64_t claimable_continuous_rate = int64_t(double(now()-base_inflated) / (10*seconds_per_year) );
+continuous_rate  =  0.01980;
+print("inflation continuous rate is =====  ", continuous_rate);
+}
+
+
+//...............................................................................................................//
+//............................................ends here .........................................................//
+
+
+
+
 auto new_tokens = static_cast<int64_t>( (continuous_rate * double(token_supply.amount) * double(usecs_since_last_fill)) / double(useconds_per_year) );
 
 //auto inf_tokens = (continuous_rate * token_supply.amount);
