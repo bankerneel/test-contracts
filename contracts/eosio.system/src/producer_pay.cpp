@@ -9,7 +9,7 @@ namespace eosiosystem {
 
 //const int64_t min_pervote_daily_pay = 100'0000;
 const int64_t    min_activated_stake            = 150'000'000'0000;
-double     continuous_rate                = 0.04879; // 5% annual rate
+double     continuous_rate                      = 0.04879; // 5% annual rate
 //const double perblock_rate = 0.0025; // 0.25%
 //const double standby_rate = 0.0075; // 0.75%
 const double     perblock_rate                  = 0.015; // 1.5%

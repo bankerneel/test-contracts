@@ -31,24 +31,34 @@ namespace eosiosystem {
     *  @pre authority of producer to register
     *
     */
+
+
+
+/*
    void system_contract::regproducer( const name producer, const eosio::public_key& producer_key, const std::string& url, uint16_t location ) {
       check( url.size() < 512, "url too long" );
       check( producer_key != eosio::public_key(), "public key should not be the default value" );
       require_auth( producer );
-
-      auto prod = _producers.find( producer.value );
+  
+    auto prod = _producers.find( producer.value );
       const auto ct = current_time_point();
-
+  
+auto voter = _voters.find(producer.value);
+if(voter-> staked >= 100000){
       if ( prod != _producers.end() ) {
          _producers.modify( prod, producer, [&]( producer_info& info ){
             info.producer_key = producer_key;
             info.is_active    = true;
             info.url          = url;
             info.location     = location;
+
+print("..........................................................");
             if ( info.last_claim_time == time_point() )
                info.last_claim_time = ct;
          });
-
+}else {
+print("you don't have enough stakes to register for block producer");
+}
          auto prod2 = _producers2.find( producer.value );
          if ( prod2 == _producers2.end() ) {
             _producers2.emplace( producer, [&]( producer_info2& info ){
@@ -59,6 +69,8 @@ namespace eosiosystem {
             // When introducing the producer2 table row for the first time, the producer's votes must also be accounted for in the global total_producer_votepay_share at the same time.
          }
       } else {
+if(voter-> staked >= 100000){
+
          _producers.emplace( producer, [&]( producer_info& info ){
             info.owner           = producer;
             info.total_votes     = 0;
@@ -72,9 +84,71 @@ namespace eosiosystem {
             info.owner                     = producer;
             info.last_votepay_share_update = ct;
          });
-      }
+      }else {
+print("you don't have enough staked tokens in your account");
+}
+}
+}
 
-   }
+
+*/
+
+//..............................................................................updated regproducer method....................................................................//
+//............................................................................................................................................................................//
+//..............................................................................starts from here..............................................................................//
+
+void system_contract::regproducer( const name producer, const eosio::public_key& producer_key, const std::string& url, uint16_t location ) {
+      check( url.size() < 512, "url too long" );
+      check( producer_key != eosio::public_key(), "public key should not be the default value" );
+      require_auth( producer );
+    
+auto voter = _voters.find(producer.value);
+if(voter-> staked >= 1000000000){
+    auto prod = _producers.find( producer.value );
+      const auto ct = current_time_point();
+      if ( prod != _producers.end() ) {
+         _producers.modify( prod, producer, [&]( producer_info& info ){
+            info.producer_key = producer_key;
+            info.is_active    = true;
+            info.url          = url;
+            info.location     = location;
+            if ( info.last_claim_time == time_point() )
+               info.last_claim_time = ct;
+         });
+         auto prod2 = _producers2.find( producer.value );
+         if ( prod2 == _producers2.end() ) {
+            _producers2.emplace( producer, [&]( producer_info2& info ){
+               info.owner                     = producer;
+               info.last_votepay_share_update = ct;
+            });
+            update_total_votepay_share( ct, 0.0, prod->total_votes );
+            // When introducing the producer2 table row for the first time, the producer's votes must also be accounted for in the global total_producer_votepay_share at the same time.
+         }
+      } else {
+
+         _producers.emplace( producer, [&]( producer_info& info ){
+            info.owner           = producer;
+            info.total_votes     = 0;
+            info.producer_key    = producer_key;
+            info.is_active       = true;
+            info.url             = url;
+            info.location        = location;
+            info.last_claim_time = ct;
+         });
+         _producers2.emplace( producer, [&]( producer_info2& info ){
+            info.owner                     = producer;
+            info.last_votepay_share_update = ct;
+         });
+        }
+    }else{
+            print("you don't have enough staked tokens in your account");
+        }
+    }
+
+
+//........................................................................................ends here..........................................................................//
+//...........................................................................................................................................................................//
+
 
    void system_contract::unregprod( const name producer ) {
       require_auth( producer );
